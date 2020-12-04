@@ -16,6 +16,7 @@ class UIRect{
         //change the anchormin/max off the rect, doesnt require propagating update
         function createAnchorHandle(side){
             return new Handle((self) => {
+                inverseLerp()
                 //these cbs occur after drag
                 //update the anchors/offsets/absrect
                 //propagate through tree afterwards
