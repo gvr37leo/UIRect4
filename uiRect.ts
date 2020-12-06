@@ -10,13 +10,18 @@ class UIRect{
     absRect:Rect
     parent:number
     handles:Handle[] = []
+    uiManager:UIManager
+    knotid:number
 
     constructor(){
-
+        var that = this
+        var parent = uirectstore.get(this.parent)
         //change the anchormin/max off the rect, doesnt require propagating update
         function createAnchorHandle(side){
             return new Handle((self) => {
-                inverseLerp()
+
+                // var knot = that.uiManager.graph.data.get(that.id)
+                that.uiManager.updateUI(that.knotid)
                 //these cbs occur after drag
                 //update the anchors/offsets/absrect
                 //propagate through tree afterwards
@@ -24,43 +29,116 @@ class UIRect{
             })
         }
 
-        //changes the offsetmin/max off the rect, also change the absrect, propagate update
-        function createOffsetHandle(side){
-            return new Handle((self) => {
 
-            })
-        }
+        this.handles = [
+            new Handle((self) => {
+                //topleft
+                that.anchorMin.x = inverseLerp(self.pos.x,parent.absRect.min.x,parent.absRect.max.x)
+                that.anchorMin.y = inverseLerp(self.pos.y,parent.absRect.min.y,parent.absRect.max.y)
+                that.uiManager.updateUI(that.knotid)
+            }),
+            new Handle((self) => {
+                //topright
+                that.anchorMax.x = inverseLerp(self.pos.x,parent.absRect.min.x,parent.absRect.max.x)
+                that.anchorMin.y = inverseLerp(self.pos.y,parent.absRect.min.y,parent.absRect.max.y)
+                that.uiManager.updateUI(that.knotid)
+            }),
+            new Handle((self) => {
+                //botright
+                that.anchorMax.x = inverseLerp(self.pos.x,parent.absRect.min.x,parent.absRect.max.x)
+                that.anchorMax.y = inverseLerp(self.pos.y,parent.absRect.min.y,parent.absRect.max.y)
+                that.uiManager.updateUI(that.knotid)
+            }),
+            new Handle((self) => {
+                //botleft
+                that.anchorMin.x = inverseLerp(self.pos.x,parent.absRect.min.x,parent.absRect.max.x)
+                that.anchorMax.y = inverseLerp(self.pos.y,parent.absRect.min.y,parent.absRect.max.y)
+                that.uiManager.updateUI(that.knotid)
+            }),
+            
+            new Handle((self) => {
+                var absminanchorpos = new Vector()
+                var absmaxanchorpas = new Vector()
+                var offsetmin = absminanchorpos.to(self.pos)
+                var offsetmax = absmaxanchorpas.to(self.pos)
 
-        //simillar to createoffsethandle just adjusts 2 handles, can be done via propagating
-        function createEdgeHandle(side){
-            return new Handle((self) => {
+                //topleft
+                that.offsetMin.x = offsetmin.x
+                that.offsetMin.y = offsetmin.y
+                that.uiManager.updateUI(that.knotid)
 
-            })
-        }
+            }),
+            new Handle((self) => {
+                var absminanchorpos = new Vector()
+                var absmaxanchorpas = new Vector()
+                var offsetmin = absminanchorpos.to(self.pos)
+                var offsetmax = absmaxanchorpas.to(self.pos)
 
-        // similar to createoffsethandle just adjust all handles, can be done via propagating
-        function createDragHandle(side){
-            return new Handle((self) => {
+                //topright
+                that.offsetMax.x = offsetmax.x
+                that.offsetMin.y = offsetmin.y
+                that.uiManager.updateUI(that.knotid)
+            }),
+            new Handle((self) => {
+                var absminanchorpos = new Vector()
+                var absmaxanchorpas = new Vector()
+                var offsetmin = absminanchorpos.to(self.pos)
+                var offsetmax = absmaxanchorpas.to(self.pos)
 
-            })
-        }
+                //botright
+                that.offsetMax.x = offsetmax.x
+                that.offsetMax.y = offsetmax.y
+                that.uiManager.updateUI(that.knotid)
+            }),
+            new Handle((self) => {
+                var absminanchorpos = new Vector()
+                var absmaxanchorpas = new Vector()
+                var offsetmin = absminanchorpos.to(self.pos)
+                var offsetmax = absmaxanchorpas.to(self.pos)
 
-        var handles = [
-            createAnchorHandle(0),
-            createAnchorHandle(0),
-            createAnchorHandle(0),
-            createAnchorHandle(0),
-            createOffsetHandle(0),
-            createOffsetHandle(0),
-            createOffsetHandle(0),
-            createOffsetHandle(0),
-            createDragHandle(0),
-            createEdgeHandle(0),
-            createEdgeHandle(0),
-            createEdgeHandle(0),
+                //botleft
+                that.offsetMin.x = offsetmin.x
+                that.offsetMax.y = offsetmax.y
+                that.uiManager.updateUI(that.knotid)
+            }),
+
+
+            new Handle((self) => {
+                //drag
+            }),
+
+
+            new Handle((self) => {
+                var absminanchorpos = new Vector()
+                var absmaxanchorpas = new Vector()
+                var offsetmin = absminanchorpos.to(self.pos)
+                var offsetmax = absmaxanchorpas.to(self.pos)
+
+                //left
+                that.offsetMin.x = offsetmin.x
+                that.uiManager.updateUI(that.knotid)
+            }),
+            new Handle((self) => {
+                var absminanchorpos = new Vector()
+                var absmaxanchorpas = new Vector()
+                var offsetmin = absminanchorpos.to(self.pos)
+                var offsetmax = absmaxanchorpas.to(self.pos)
+                //right
+                that.offsetMax.x = offsetmax.x
+                that.uiManager.updateUI(that.knotid)
+            }),
+            new Handle((self) => {
+                var absminanchorpos = new Vector()
+                var absmaxanchorpas = new Vector()
+                var offsetmin = absminanchorpos.to(self.pos)
+                var offsetmax = absmaxanchorpas.to(self.pos)
+                //bot
+                that.offsetMax.y = offsetmax.y
+                that.uiManager.updateUI(that.knotid)
+            }),
 
         ]
-        this.handles = handles
+        
 
     }
 
@@ -88,6 +166,32 @@ class UIRect{
     }
 }
 
+class UIManager{
+
+    graph:Store<Knot>
+    uirects:Store<UIRect>
+
+    constructor(){
+
+    }
+
+    setUIRects(uirectstore:Store<UIRect>){
+        this.graph = createGraph(uirectstore)
+    }
+
+    updateUI(startid:number){
+        var start = this.graph.get(startid)
+        var orderedknots = floodfill(this.graph,start)
+        //todo maybe remove start knot from orderedknots
+        for(var knot of orderedknots){
+            //todo get handle and update it
+            this.uirects.get(knot.data).update()
+        }
+    }
+
+}
+
+
 function createGraph(uirectstore:Store<UIRect>){
     var knotstore = new Store<Knot>()
     var rects = uirectstore.list()
@@ -106,7 +210,9 @@ function createGraph(uirectstore:Store<UIRect>){
         var children = knotstore.get('data',rect.children)
         
         
-        var neighbours = [rect.parent,...rect.children]
+        //rect.parent maybe not add rect.parent because parent uirects dont need to update if their children change
+        //just add the children and the handles
+        var neighbours = [...rect.children]
         knot.neighbours = [parent.id,children.id]
     }
 

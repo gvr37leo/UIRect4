@@ -1,9 +1,9 @@
 class Handle{
     rect:UIRect
-
+    pos:Vector
     onUpdate
 
-    constructor(cb){
+    constructor(cb:(self:Handle) => void){
 
     }
 }
