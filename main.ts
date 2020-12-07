@@ -22,29 +22,34 @@ var crret = createCanvas(screensize.x,screensize.y)
 var canvas = crret.canvas
 var ctxt = crret.ctxt
 
+var mousepos = new Vector(0,0)
 var uirectstore = new Store<UIRect>()
+var handlestore = new Store<Handle>()
+var a = addUIRect(null,false)
+// var b = addUIRect(a.id)
 
-var ui = [
-    new UIRect([
-        new UIRect(),
-        new UIRect(),
-    ])
-]
+a.update()
 
-var eventqueue = new EventQueue()
 
-eventqueue.listen('something',() => {
-    var graph = createGraph(uirectstore)
-    var knots2update = floodfill(graph,null)
-    for(var knot of knots2update){
-        uirectstore.get(knot.id).update()
-    }
+document.addEventListener('mousemove', e => {
+    mousepos = getMousePos(canvas,e)
 })
 
 loop((dt) => {
     ctxt.clearRect(0,0,screensize.x,screensize.y)
 
     for(var rect of uirectstore.list()){
-        rect.draw()
+        rect.draw(ctxt)
     }
 })
+
+
+function addUIRect(parent:number,handles:boolean){
+    var rect = new UIRect()
+    uirectstore.add(rect)
+    rect.parent = parent
+    if(handles){
+        rect.addHandles()
+    }
+    return rect
+}

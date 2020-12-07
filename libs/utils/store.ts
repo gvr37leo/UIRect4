@@ -8,6 +8,10 @@ class Store<T>{
         this.map.set((item as any).id,item)
     }
 
+    addList(items:T[]){
+        items.forEach(i => this.add(i))
+    }
+
     get(id){
         return this.map.get(id)
     }

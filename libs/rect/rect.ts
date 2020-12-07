@@ -34,7 +34,7 @@ class Rect{
 
     draw(ctxt:CanvasRenderingContext2D){
        var size = this.size()
-       ctxt.fillRect(this.min.x,this.min.y,size.x,size.y)
+       ctxt.strokeRect(this.min.x,this.min.y,size.x,size.y)
     }
 
     move(pos:Vector){
