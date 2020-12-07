@@ -4,8 +4,8 @@ enum HandlePositions{anchortl,anchortr,anchorbr,anchorbl,offsettl,offsettr,offse
 class UIRect{
 
     id:number
-    anchorMin:Vector = new Vector(0,0)
-    anchorMax:Vector = new Vector(1,1)
+    anchorMin:Vector = new Vector(0.1,0.1)
+    anchorMax:Vector = new Vector(0.9,0.9)
     offsetMin:Vector = new Vector(10,10)
     offsetMax:Vector = new Vector(-10,-10)
     absRect:Rect = new Rect(new Vector(0,0), new Vector(0,0))
@@ -20,33 +20,63 @@ class UIRect{
     }
 
     addHandles(){
+        this.addAnchorHandles()
+        this.addOffsetHandles()
+        
+
+        handlestore.addList(Array.from(this.handles.values()))
+    }
+
+    addAnchorHandles(){
         var that = this
-
-        this.handles.set(HandlePositions.anchortl,new Handle((self) => {
+        this.handles.set(HandlePositions.anchortl,new Handle(HandleType.anchor,(self) => {
             //topleft
             that.anchorMin.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
             that.anchorMin.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
+
+            var reversedelta = self.delta.c().scale(-1)
+            that.offsetMin.x += reversedelta.x
+            that.offsetMin.y += reversedelta.y
             this.update()
         }))
-        this.handles.set(HandlePositions.anchortr,new Handle((self) => {
+        this.handles.set(HandlePositions.anchortr,new Handle(HandleType.anchor,(self) => {
             //topright
             that.anchorMax.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
             that.anchorMin.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
+
+            var reversedelta = self.delta.c().scale(-1)
+            that.offsetMax.x += reversedelta.x
+            that.offsetMin.y += reversedelta.y
             this.update()
         }))
-        this.handles.set(HandlePositions.anchorbr,new Handle((self) => {
+        this.handles.set(HandlePositions.anchorbr,new Handle(HandleType.anchor,(self) => {
             //botright
             that.anchorMax.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
             that.anchorMax.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
+
+            var reversedelta = self.delta.c().scale(-1)
+            that.offsetMax.x += reversedelta.x
+            that.offsetMax.y += reversedelta.y
+
             this.update()
         }))
-        this.handles.set(HandlePositions.anchorbl,new Handle((self) => {
+        this.handles.set(HandlePositions.anchorbl,new Handle(HandleType.anchor,(self) => {
             //botleft
             that.anchorMin.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
             that.anchorMax.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
+
+            var reversedelta = self.delta.c().scale(-1)
+            that.offsetMin.x += reversedelta.x
+            that.offsetMax.y += reversedelta.y
+
             this.update()
         }))
-        this.handles.set(HandlePositions.offsettl,new Handle((self) => {
+        //todo add handles to store
+    }
+
+    addOffsetHandles(){
+        var that = this
+        this.handles.set(HandlePositions.offsettl,new Handle(HandleType.offset,(self) => {
             var offsetmin = this.absAnchorMin().to(self.pos)
             var offsetmax = this.absAnchorMax().to(self.pos)
 
@@ -56,7 +86,7 @@ class UIRect{
             this.update()
 
         }))
-        this.handles.set(HandlePositions.offsettr,new Handle((self) => {
+        this.handles.set(HandlePositions.offsettr,new Handle(HandleType.offset,(self) => {
             var offsetmin = this.absAnchorMin().to(self.pos)
             var offsetmax = this.absAnchorMax().to(self.pos)
 
@@ -65,7 +95,7 @@ class UIRect{
             that.offsetMin.y = offsetmin.y
             this.update()
         }))
-        this.handles.set(HandlePositions.offsetbr,new Handle((self) => {
+        this.handles.set(HandlePositions.offsetbr,new Handle(HandleType.offset,(self) => {
             var offsetmin = this.absAnchorMin().to(self.pos)
             var offsetmax = this.absAnchorMax().to(self.pos)
 
@@ -74,7 +104,7 @@ class UIRect{
             that.offsetMax.y = offsetmax.y
             this.update()
         }))
-        this.handles.set(HandlePositions.offsetbl,new Handle((self) => {
+        this.handles.set(HandlePositions.offsetbl,new Handle(HandleType.offset,(self) => {
             var offsetmin = this.absAnchorMin().to(self.pos)
             var offsetmax = this.absAnchorMax().to(self.pos)
 
@@ -83,10 +113,13 @@ class UIRect{
             that.offsetMax.y = offsetmax.y
             this.update()
         }))
-        this.handles.set(HandlePositions.offsetdrag,new Handle((self) => {
+        this.handles.set(HandlePositions.offsetdrag,new Handle(HandleType.offset,(self) => {
+            that.offsetMin.add(self.delta)
+            that.offsetMax.add(self.delta)
+            this.update()
             //drag
         }))
-        this.handles.set(HandlePositions.offsetl,new Handle((self) => {
+        this.handles.set(HandlePositions.offsetl,new Handle(HandleType.offset,(self) => {
             var offsetmin = this.absAnchorMin().to(self.pos)
             var offsetmax = this.absAnchorMax().to(self.pos)
 
@@ -94,14 +127,14 @@ class UIRect{
             that.offsetMin.x = offsetmin.x
             this.update()
         }))
-        this.handles.set(HandlePositions.offsetr,new Handle((self) => {
+        this.handles.set(HandlePositions.offsetr,new Handle(HandleType.offset,(self) => {
             var offsetmin = this.absAnchorMin().to(self.pos)
             var offsetmax = this.absAnchorMax().to(self.pos)
             //right
             that.offsetMax.x = offsetmax.x
             this.update()
         }))
-        this.handles.set(HandlePositions.offsetb,new Handle((self) => {
+        this.handles.set(HandlePositions.offsetb,new Handle(HandleType.offset,(self) => {
             var offsetmin = this.absAnchorMin().to(self.pos)
             var offsetmax = this.absAnchorMax().to(self.pos)
             //bot
@@ -109,7 +142,7 @@ class UIRect{
             this.update()
         }))
 
-        handlestore.addList(Array.from(this.handles.values()))
+        //todo add handles to store
     }
 
     getParentAbsRect(){
@@ -124,21 +157,34 @@ class UIRect{
 
     update(){
         
-        var handlepositions = {
-            anchortl:new Vector(0,0),
-            anchortr:new Vector(1,0),
-            anchorbr:new Vector(1,1),
-            anchorbl:new Vector(0,1),
-            offsettl:new Vector(0,0),
-            offsettr:new Vector(1,0),
-            offsetbr:new Vector(1,1),
-            offsetbl:new Vector(0,1),
-            offsetdrag:new Vector(0.5,0),
-            offsetl:new Vector(0,0.5),
-            offsetr:new Vector(1,0.5),
-            offsetb:new Vector(0.5,1),
+        var handlepositions = new Map<HandlePositions,Vector>()
+        handlepositions.set(HandlePositions.anchortl, new Vector(0,0))
+        handlepositions.set(HandlePositions.anchortr, new Vector(1,0))
+        handlepositions.set(HandlePositions.anchorbr, new Vector(1,1))
+        handlepositions.set(HandlePositions.anchorbl, new Vector(0,1))
+        handlepositions.set(HandlePositions.offsettl, new Vector(0,0))
+        handlepositions.set(HandlePositions.offsettr, new Vector(1,0))
+        handlepositions.set(HandlePositions.offsetbr, new Vector(1,1))
+        handlepositions.set(HandlePositions.offsetbl, new Vector(0,1))
+        handlepositions.set(HandlePositions.offsetdrag, new Vector(0.5,0))
+        handlepositions.set(HandlePositions.offsetl, new Vector(0,0.5))
+        handlepositions.set(HandlePositions.offsetr, new Vector(1,0.5))
+        handlepositions.set(HandlePositions.offsetb, new Vector(0.5,1))
+        
 
-        }
+        var handletype = new Map<HandlePositions,number>()
+        handletype.set(HandlePositions.anchortl,0)
+        handletype.set(HandlePositions.anchortr,0)
+        handletype.set(HandlePositions.anchorbr,0)
+        handletype.set(HandlePositions.anchorbl,0)
+        handletype.set(HandlePositions.offsettl,1)
+        handletype.set(HandlePositions.offsettr,1)
+        handletype.set(HandlePositions.offsetbr,1)
+        handletype.set(HandlePositions.offsetbl,1)
+        handletype.set(HandlePositions.offsetdrag,1)
+        handletype.set(HandlePositions.offsetl,1)
+        handletype.set(HandlePositions.offsetr,1)
+        handletype.set(HandlePositions.offsetb,1)
 
         this.absParent = this.getParentAbsRect()
 
@@ -150,26 +196,21 @@ class UIRect{
         var absAnchorRect = new Rect(this.absAnchorMin(),this.absAnchorMax())
         this.absRect.min.overwrite(this.absOffsetMin())
         this.absRect.max.overwrite(this.absOffsetMax())
+        var absrects = [absAnchorRect,this.absRect]
 
+        for(var [hpos,handle] of this.handles){
+            handle.setPos(absrects[handletype.get(hpos)].getPoint(handlepositions.get(hpos)))
+        }
 
-        this.handles[0].pos.overwrite(absAnchorRect.getPoint(new Vector(0,0)))
-        this.handles[1].pos.overwrite(absAnchorRect.getPoint(new Vector(1,0)))
-        this.handles[2].pos.overwrite(absAnchorRect.getPoint(new Vector(1,1)))
-        this.handles[3].pos.overwrite(absAnchorRect.getPoint(new Vector(0,1)))
+        
+        if(false){//flexbox
+            //move children
+            //update their offset/anchors
+        }else{
+            this.updateChildren()
+        }
 
-        this.handles[4].pos.overwrite(this.absRect.getPoint(new Vector(0,0)))
-        this.handles[5].pos.overwrite(this.absRect.getPoint(new Vector(1,0)))
-        this.handles[6].pos.overwrite(this.absRect.getPoint(new Vector(1,1)))
-        this.handles[7].pos.overwrite(this.absRect.getPoint(new Vector(0,1)))
-
-        this.handles[8].pos.overwrite(this.absRect.getPoint(new Vector(0.5,0)))
-
-        this.handles[9].pos.overwrite(this.absRect.getPoint(new Vector(0,0.5)))
-        this.handles[10].pos.overwrite(this.absRect.getPoint(new Vector(1,0.5)))
-        this.handles[11].pos.overwrite(this.absRect.getPoint(new Vector(0.5,1)))
-
-        this.updateChildren()
-        //update handles
+        
     }
 
     absAnchorMin(){
@@ -193,7 +234,7 @@ class UIRect{
     }
 
     updateChildren(){
-        var children = uirectstore.list().filter(r => r.id == this.parent)
+        var children = uirectstore.list().filter(r => r.parent == this.id)
         children.forEach(c => c.update())
     }
 
@@ -203,6 +244,7 @@ class UIRect{
             handle.draw(ctxt)
         }
     }
+
 }
 
 // class UIManager{

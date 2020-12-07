@@ -13,6 +13,7 @@
 /// <reference path="handle.ts" />
 /// <reference path="graph.ts" />
 /// <reference path="rectManager.ts" />
+/// <reference path="clickManager.ts" />
 
 
 
@@ -22,10 +23,12 @@ var crret = createCanvas(screensize.x,screensize.y)
 var canvas = crret.canvas
 var ctxt = crret.ctxt
 
+var clickManager = new ClickManager()
 var mousepos = new Vector(0,0)
 var uirectstore = new Store<UIRect>()
 var handlestore = new Store<Handle>()
-var a = addUIRect(null,false)
+var a = addUIRect(null,true)
+var b = addUIRect(a.id,true)
 // var b = addUIRect(a.id)
 
 a.update()
