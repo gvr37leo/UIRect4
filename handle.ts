@@ -33,6 +33,12 @@ class Handle{
         })
     }
 
+    cleanup(){
+        clickManager.delisten(this.hitbox)
+        //todo
+        //remove all the eventlistners
+    }
+
     setPos(pos:Vector){
         this.oldpos = this.pos
         this.pos = pos

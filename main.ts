@@ -26,16 +26,33 @@ var clickManager = new ClickManager()
 var mousepos = new Vector(0,0)
 var uirectstore = new Store<UIRect>()
 var handlestore = new Store<Handle>()
-var a = addUIRect(null,true,true)
-var b = addUIRect(a.id,false,false)
-var c = addUIRect(a.id,false,false)
-var d = addUIRect(a.id,false,false);
-a.justifyCOntent = JustifyContent.spaceevenly;
-[b,c,d].forEach(r => r.setSize(new Vector(40,40)))
+
+function addFlexbox(self:UIRect,justify:JustifyContent,anchormin:Vector,anchormax:Vector,offsetmin:Vector,offsetmax:Vector){
+    var rect = addUIRect(self.id,true)
+    addDemoChildRects(rect)
+    rect.addOffsetHandles()
+    // rect.addAnchorHandles()
+    rect.justifyCOntent = justify
+    rect.anchorMin = anchormin
+    rect.anchorMax = anchormax
+    rect.offsetMin = offsetmin
+    rect.offsetMax = offsetmax
+    return rect
+}
+
+var rootrect = addUIRect(null,false)
+rootrect.addOffsetHandles()
+addFlexbox(rootrect,JustifyContent.center,new Vector(0.5,0),new Vector(0.5,0),new Vector(-200,0),new Vector(200, 100))
+addFlexbox(rootrect,JustifyContent.left,new Vector(0,0),new Vector(0,0),new Vector(0,0),new Vector(400,200))
+addFlexbox(rootrect,JustifyContent.right,new Vector(1,0),new Vector(1,0),new Vector(-400,0),new Vector(0,200))
+
+addFlexbox(rootrect,JustifyContent.spacearound,new Vector(0,0.5),new Vector(1,0.5),new Vector(0,-100),new Vector(1,100))
+addFlexbox(rootrect,JustifyContent.spaceevenly,new Vector(0,1),new Vector(0,1),new Vector(0,-100),new Vector(400,0))
+addFlexbox(rootrect,JustifyContent.spacebetween,new Vector(1,1),new Vector(1,1),new Vector(-400,-200),new Vector(0,0))
 
 // var b = addUIRect(a.id)
 
-a.update()
+rootrect.update()
 
 
 document.addEventListener('mousemove', e => {
@@ -50,14 +67,18 @@ loop((dt) => {
     }
 })
 
+function addDemoChildRects(self:UIRect){
+    for(var i = 0; i < 5;i++){
+        var rect = addUIRect(self.id,false)
+        rect.setSize(new Vector(40,40))
+        // rect.addOffsetHandles()
+    }
+}
 
-function addUIRect(parent:number,handles:boolean,flex:boolean){
+function addUIRect(parent:number,flex:boolean){
     var rect = new UIRect()
     uirectstore.add(rect)
     rect.parent = parent
     rect.isFlex = flex
-    if(handles){
-        rect.addHandles()
-    }
     return rect
 }

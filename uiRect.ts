@@ -64,133 +64,190 @@ class UIRect{
     addHandles(){
         this.addAnchorHandles()
         this.addOffsetHandles()
-        
-        handlestore.addList(Array.from(this.handles.values()))
+    }
+
+    removeSpecificHandles(handlepositions:HandlePositions[]){
+        for(var handlepos of handlepositions){
+            this.handles.get(handlepos).cleanup()
+            this.handles.delete(handlepos)
+            handlestore.remove(this.handles.get(handlepos))
+        }
+    }
+
+    addSpecificHandles(handlepositions:HandlePositions[]){
+        var that = this
+        var map = new Map<HandlePositions,() => void>()
+
+        map.set(HandlePositions.anchortl, () => {
+            this.handles.set(HandlePositions.anchortl,new Handle(HandleType.anchor,(self) => {
+                //topleft
+                that.anchorMin.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
+                that.anchorMin.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
+    
+                var reversedelta = self.delta.c().scale(-1)
+                that.offsetMin.x += reversedelta.x
+                that.offsetMin.y += reversedelta.y
+                this.update()
+            }))
+        })
+
+        map.set(HandlePositions.anchortr, () => {
+            this.handles.set(HandlePositions.anchortr,new Handle(HandleType.anchor,(self) => {
+                //topright
+                that.anchorMax.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
+                that.anchorMin.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
+    
+                var reversedelta = self.delta.c().scale(-1)
+                that.offsetMax.x += reversedelta.x
+                that.offsetMin.y += reversedelta.y
+                this.update()
+            }))
+        })
+        map.set(HandlePositions.anchorbl, () => {
+            this.handles.set(HandlePositions.anchorbl,new Handle(HandleType.anchor,(self) => {
+                //botleft
+                that.anchorMin.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
+                that.anchorMax.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
+
+                var reversedelta = self.delta.c().scale(-1)
+                that.offsetMin.x += reversedelta.x
+                that.offsetMax.y += reversedelta.y
+
+                this.update()
+            }))
+        })
+        map.set(HandlePositions.anchorbr, () => {
+            this.handles.set(HandlePositions.anchorbr,new Handle(HandleType.anchor,(self) => {
+                //botright
+                that.anchorMax.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
+                that.anchorMax.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
+    
+                var reversedelta = self.delta.c().scale(-1)
+                that.offsetMax.x += reversedelta.x
+                that.offsetMax.y += reversedelta.y
+    
+                this.update()
+            }))
+        })
+
+
+
+        map.set(HandlePositions.offsettl, () => {
+            this.handles.set(HandlePositions.offsettl,new Handle(HandleType.offset,(self) => {
+                var offsetmin = this.absAnchorMin().to(self.pos)
+                var offsetmax = this.absAnchorMax().to(self.pos)
+    
+                //topleft
+                that.offsetMin.x = offsetmin.x
+                that.offsetMin.y = offsetmin.y
+                this.update()
+    
+            }))
+        })
+        map.set(HandlePositions.offsettr, () => {
+            this.handles.set(HandlePositions.offsettr,new Handle(HandleType.offset,(self) => {
+                var offsetmin = this.absAnchorMin().to(self.pos)
+                var offsetmax = this.absAnchorMax().to(self.pos)
+    
+                //topright
+                that.offsetMax.x = offsetmax.x
+                that.offsetMin.y = offsetmin.y
+                this.update()
+            }))
+        })
+        map.set(HandlePositions.offsetbr, () => {
+            this.handles.set(HandlePositions.offsetbr,new Handle(HandleType.offset,(self) => {
+                var offsetmin = this.absAnchorMin().to(self.pos)
+                var offsetmax = this.absAnchorMax().to(self.pos)
+    
+                //botright
+                that.offsetMax.x = offsetmax.x
+                that.offsetMax.y = offsetmax.y
+                this.update()
+            }))
+        })
+        map.set(HandlePositions.offsetbl, () => {
+            this.handles.set(HandlePositions.offsetbl,new Handle(HandleType.offset,(self) => {
+                var offsetmin = this.absAnchorMin().to(self.pos)
+                var offsetmax = this.absAnchorMax().to(self.pos)
+    
+                //botleft
+                that.offsetMin.x = offsetmin.x
+                that.offsetMax.y = offsetmax.y
+                this.update()
+            }))
+        })
+        map.set(HandlePositions.offsetdrag, () => {
+            this.handles.set(HandlePositions.offsetdrag,new Handle(HandleType.offset,(self) => {
+                that.offsetMin.add(self.delta)
+                that.offsetMax.add(self.delta)
+                this.update()
+                //drag
+            }))
+        })
+        map.set(HandlePositions.offsetl, () => {
+            this.handles.set(HandlePositions.offsetl,new Handle(HandleType.offset,(self) => {
+                var offsetmin = this.absAnchorMin().to(self.pos)
+                var offsetmax = this.absAnchorMax().to(self.pos)
+    
+                //left
+                that.offsetMin.x = offsetmin.x
+                this.update()
+            }))
+        })
+        map.set(HandlePositions.offsetr, () => {
+            this.handles.set(HandlePositions.offsetr,new Handle(HandleType.offset,(self) => {
+                var offsetmin = this.absAnchorMin().to(self.pos)
+                var offsetmax = this.absAnchorMax().to(self.pos)
+                //right
+                that.offsetMax.x = offsetmax.x
+                this.update()
+            }))
+        })
+        map.set(HandlePositions.offsetb, () => {
+            this.handles.set(HandlePositions.offsetb,new Handle(HandleType.offset,(self) => {
+                var offsetmin = this.absAnchorMin().to(self.pos)
+                var offsetmax = this.absAnchorMax().to(self.pos)
+                //bot
+                that.offsetMax.y = offsetmax.y
+                this.update()
+            }))
+        })
+
+
+        for(var handlepos of handlepositions){
+            map.get(handlepos)()
+            handlestore.add(this.handles.get(handlepos))
+        }
     }
 
     addAnchorHandles(){
-        var that = this
-        this.handles.set(HandlePositions.anchortl,new Handle(HandleType.anchor,(self) => {
-            //topleft
-            that.anchorMin.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
-            that.anchorMin.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
-
-            var reversedelta = self.delta.c().scale(-1)
-            that.offsetMin.x += reversedelta.x
-            that.offsetMin.y += reversedelta.y
-            this.update()
-        }))
-        this.handles.set(HandlePositions.anchortr,new Handle(HandleType.anchor,(self) => {
-            //topright
-            that.anchorMax.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
-            that.anchorMin.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
-
-            var reversedelta = self.delta.c().scale(-1)
-            that.offsetMax.x += reversedelta.x
-            that.offsetMin.y += reversedelta.y
-            this.update()
-        }))
-        this.handles.set(HandlePositions.anchorbr,new Handle(HandleType.anchor,(self) => {
-            //botright
-            that.anchorMax.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
-            that.anchorMax.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
-
-            var reversedelta = self.delta.c().scale(-1)
-            that.offsetMax.x += reversedelta.x
-            that.offsetMax.y += reversedelta.y
-
-            this.update()
-        }))
-        this.handles.set(HandlePositions.anchorbl,new Handle(HandleType.anchor,(self) => {
-            //botleft
-            that.anchorMin.x = inverseLerp(self.pos.x,this.absParent.min.x,this.absParent.max.x)
-            that.anchorMax.y = inverseLerp(self.pos.y,this.absParent.min.y,this.absParent.max.y)
-
-            var reversedelta = self.delta.c().scale(-1)
-            that.offsetMin.x += reversedelta.x
-            that.offsetMax.y += reversedelta.y
-
-            this.update()
-        }))
-        //todo add handles to store
+        this.addSpecificHandles([
+            HandlePositions.anchortl,
+            HandlePositions.anchortr,
+            HandlePositions.anchorbr,
+            HandlePositions.anchorbl,
+        ])
     }
 
     addOffsetHandles(){
-        var that = this
-        this.handles.set(HandlePositions.offsettl,new Handle(HandleType.offset,(self) => {
-            var offsetmin = this.absAnchorMin().to(self.pos)
-            var offsetmax = this.absAnchorMax().to(self.pos)
-
-            //topleft
-            that.offsetMin.x = offsetmin.x
-            that.offsetMin.y = offsetmin.y
-            this.update()
-
-        }))
-        this.handles.set(HandlePositions.offsettr,new Handle(HandleType.offset,(self) => {
-            var offsetmin = this.absAnchorMin().to(self.pos)
-            var offsetmax = this.absAnchorMax().to(self.pos)
-
-            //topright
-            that.offsetMax.x = offsetmax.x
-            that.offsetMin.y = offsetmin.y
-            this.update()
-        }))
-        this.handles.set(HandlePositions.offsetbr,new Handle(HandleType.offset,(self) => {
-            var offsetmin = this.absAnchorMin().to(self.pos)
-            var offsetmax = this.absAnchorMax().to(self.pos)
-
-            //botright
-            that.offsetMax.x = offsetmax.x
-            that.offsetMax.y = offsetmax.y
-            this.update()
-        }))
-        this.handles.set(HandlePositions.offsetbl,new Handle(HandleType.offset,(self) => {
-            var offsetmin = this.absAnchorMin().to(self.pos)
-            var offsetmax = this.absAnchorMax().to(self.pos)
-
-            //botleft
-            that.offsetMin.x = offsetmin.x
-            that.offsetMax.y = offsetmax.y
-            this.update()
-        }))
-        this.handles.set(HandlePositions.offsetdrag,new Handle(HandleType.offset,(self) => {
-            that.offsetMin.add(self.delta)
-            that.offsetMax.add(self.delta)
-            this.update()
-            //drag
-        }))
-        this.handles.set(HandlePositions.offsetl,new Handle(HandleType.offset,(self) => {
-            var offsetmin = this.absAnchorMin().to(self.pos)
-            var offsetmax = this.absAnchorMax().to(self.pos)
-
-            //left
-            that.offsetMin.x = offsetmin.x
-            this.update()
-        }))
-        this.handles.set(HandlePositions.offsetr,new Handle(HandleType.offset,(self) => {
-            var offsetmin = this.absAnchorMin().to(self.pos)
-            var offsetmax = this.absAnchorMax().to(self.pos)
-            //right
-            that.offsetMax.x = offsetmax.x
-            this.update()
-        }))
-        this.handles.set(HandlePositions.offsetb,new Handle(HandleType.offset,(self) => {
-            var offsetmin = this.absAnchorMin().to(self.pos)
-            var offsetmax = this.absAnchorMax().to(self.pos)
-            //bot
-            that.offsetMax.y = offsetmax.y
-            this.update()
-        }))
-
-        //todo add handles to store
+        this.addSpecificHandles([
+            HandlePositions.offsetb,
+            HandlePositions.offsetbl,
+            HandlePositions.offsetbr,
+            HandlePositions.offsetdrag,
+            HandlePositions.offsetl,
+            HandlePositions.offsetr,
+            HandlePositions.offsettl,
+            HandlePositions.offsettr,
+        ])
     }
 
     getParentAbsRect(){
         var parent = uirectstore.get(this.parent)
         var absparent = parent?.absRect
         if(parent == null){
-            absparent = new Rect(new Vector(10,10),screensize.c().add(new Vector(-10,-10)))
+            absparent = new Rect(new Vector(0,0),screensize.c())
         }
         return absparent
     }
