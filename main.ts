@@ -12,7 +12,6 @@
 /// <reference path="uiRect.ts" />
 /// <reference path="handle.ts" />
 /// <reference path="graph.ts" />
-/// <reference path="rectManager.ts" />
 /// <reference path="clickManager.ts" />
 
 
@@ -27,8 +26,13 @@ var clickManager = new ClickManager()
 var mousepos = new Vector(0,0)
 var uirectstore = new Store<UIRect>()
 var handlestore = new Store<Handle>()
-var a = addUIRect(null,true)
-var b = addUIRect(a.id,true)
+var a = addUIRect(null,true,true)
+var b = addUIRect(a.id,false,false)
+var c = addUIRect(a.id,false,false)
+var d = addUIRect(a.id,false,false);
+a.justifyCOntent = JustifyContent.spaceevenly;
+[b,c,d].forEach(r => r.setSize(new Vector(40,40)))
+
 // var b = addUIRect(a.id)
 
 a.update()
@@ -47,10 +51,11 @@ loop((dt) => {
 })
 
 
-function addUIRect(parent:number,handles:boolean){
+function addUIRect(parent:number,handles:boolean,flex:boolean){
     var rect = new UIRect()
     uirectstore.add(rect)
     rect.parent = parent
+    rect.isFlex = flex
     if(handles){
         rect.addHandles()
     }
